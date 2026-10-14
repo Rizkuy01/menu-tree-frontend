@@ -1,7 +1,8 @@
-import type { Menu, MenuNode } from "@/types/menu";
+import type { Menu, MenuNode, SwaggerDocument } from "@/types/menu";
 
 const BASE_URL =
   process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080/api";
+const SWAGGER_URL = `${BASE_URL.replace(/\/api\/?$/, "")}/swagger/doc.json`;
 
 // Error dari backend berformat { error: { code, message } }.
 export class ApiError extends Error {
@@ -68,4 +69,12 @@ export const menuApi = {
       method: "PATCH",
       body: JSON.stringify({ position }),
     }),
+
+  getSwagger: async () => {
+    const res = await fetch(SWAGGER_URL);
+    if (!res.ok) {
+      throw new ApiError("SWAGGER_UNAVAILABLE", "Dokumentasi Swagger tidak tersedia", res.status);
+    }
+    return (await res.json()) as SwaggerDocument;
+  },
 };
